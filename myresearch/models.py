@@ -110,7 +110,8 @@ class Fund(BaseDBM):
     name: Optional[str] = Field(alias=FundFields.name)
     desc: Optional[str] = Field(alias=FundFields.desc)
     link: Optional[str] = Field(alias=FundFields.link)
-    categories: Optional[str] = Field(alias=FundFields.categories)
+    categories: list[str] = Field(alias=FundFields.categories, default=[])
+    # categories: Optional[list[str]] = Field(alias=FundFields.categories)
 
 class Duel(BaseDBM):
     # db fields

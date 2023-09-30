@@ -10,7 +10,7 @@ from bson import ObjectId
 
 from myresearch.consts import UserRoles, RolesType
 from myresearch.core import db
-from myresearch.db.base import Id
+from myresearch.db.base import Document, Id
 from myresearch.db.mailcode import MailCodeFields
 from myresearch.db.fund import FundFields
 from myresearch.db.report import ReportFields
@@ -19,6 +19,7 @@ from myresearch.db.user import UserFields
 from myresearch.db.duel import DuelFields
 from myresearch.helpers import NotSet, is_set
 from myresearch.models import Fund, Report, Route, User, MailCode, Duel
+from myresearch.morpher import cut_side_punctuation, is_adj, to_normal_form
 from myresearch.utils import roles_to_list
 from myresearch.utils import send_mail
 
@@ -148,18 +149,77 @@ async def update_user(
 
 """FUND LOGIC"""
 
+def generate_tags(s: str):
+    s = s.lower().strip()
+
+    tags = set()
+
+    desc_words = [cut_side_punctuation(word.strip()) for word in s.split(" ") if word]
+    title_words = [cut_side_punctuation(word.strip()) for word in s.split(" ") if word]
+    all_words = desc_words + title_words
+
+    for word in all_words:
+        word = word.strip()
+        if len(word) <= 2:
+            continue
+
+        word_normal_form = to_normal_form(word)
+        if not word_normal_form:
+            continue
+
+        if is_adj(word):
+            continue
+
+        tags.add(word_normal_form.lower())
+
+    return list(tags)
+
+
+
+async def find_funds_docs_by_q(q: str) -> list[Document]:
+    q = q.lower()
+    q_tags = set(generate_tags(q))
+
+    were_event_int_ids = set()
+
+    res = []
+    for event_doc in await db.fund_collection.find_documents():
+        if q_tags & {s.strip().lower() for s in event_doc[FundFields.categories]}:
+            res.append(event_doc)
+            were_event_int_ids.add(event_doc[FundFields.int_id])
+        else:
+            for event_tag in event_doc[FundFields.categories]:
+                if event_tag.lower().strip().startswith(q):
+                    res.append(event_doc)
+                    were_event_int_ids.add(event_doc[FundFields.int_id])
+                    break
+
+        if event_doc[FundFields.int_id] in were_event_int_ids:
+            continue
+
+        title_words = event_doc[FundFields.name].strip().split(" ")
+        desc_words = event_doc[FundFields.desc].strip().split(" ")
+        all_words = [word.strip().lower() for word in set(title_words + desc_words) if word.strip()]
+        for word in all_words:
+            if word.startswith(q):
+                res.append(event_doc)
+                were_event_int_ids.add(event_doc[FundFields.int_id])
+                break
+
+    return res
+
+
 async def create_fund(
         *,
         name: Optional[str] = None,
         desc: Optional[str] = None,
         link: Optional[str] = None,
-        categories: Optional[str] = None,
 ):
     doc_to_insert = {
         FundFields.name: name,
         FundFields.desc: desc,
         FundFields.link: link,
-        FundFields.categories: categories,
+        FundFields.categories: generate_tags(desc)
     }
     inserted_doc = await db.fund_collection.insert_document(doc_to_insert)
     created_fund = Fund.parse_document(inserted_doc)

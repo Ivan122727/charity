@@ -300,6 +300,9 @@ class BaseCollection:
     async def update_document_by_oid(self, oid: ObjectId, set_: Document):
         await self.update_document({BaseFields.oid: oid}, set_)
 
+    async def find_documents(self, filter_: Optional[Filter] = None) -> list[Document]:
+        return [doc async for doc in self.create_cursor(filter_=filter_)]
+
     async def update_document_by_int_id(self, int_id: int, set_: Document):
         await self.update_document({BaseFields.int_id: int_id}, set_)
 

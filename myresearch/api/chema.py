@@ -55,7 +55,7 @@ class FundOut(BaseOutDBMSchema):
     name: Optional[str]
     desc: Optional[str]
     link: Optional[str]
-    categories: Optional[str]
+    categories: Optional[list[str]]
 
 class DuelOut(BaseOutDBMSchema):
     bet: Optional[int]
@@ -123,7 +123,6 @@ class RegFundIn(BaseSchemaIn):
     name: str
     desc: str
     link: str
-    categories: str
 
 class RegDuelIn(BaseSchemaIn):
     owner_id: int

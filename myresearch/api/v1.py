@@ -16,10 +16,10 @@ from myresearch.db.base import Document
 from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
-from myresearch.services import create_duel, create_fund, create_report, create_route, get_duel, get_fund, get_funds, get_report, get_reports, get_routes, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
+from myresearch.services import create_duel, create_fund, create_report, create_route, find_funds_docs_by_q, get_duel, get_fund, get_funds, get_report, get_reports, get_routes, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
     remove_mail_code, update_duel, update_user
 from myresearch.settings import BASE_DIRPATH
-from myresearch.utils import send_mail
+from myresearch.utils import normalize_response, send_mail
 
 api_v1_router = APIRouter(prefix="/v1")
 
@@ -226,10 +226,9 @@ async def reg_fund(
         reg_fund_in: RegFundIn = Body(...),
         user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))
 ):
-    patient = await create_fund(name=reg_fund_in.name, desc=reg_fund_in.desc, link=reg_fund_in.link, categories=reg_fund_in.categories)
-
+    fund = await create_fund(name=reg_fund_in.name, desc=reg_fund_in.desc, link=reg_fund_in.link)
     return SensitiveFundOut.parse_dbm_kwargs(
-        **patient.dict()
+        **fund.dict()
     )
 
 @api_v1_router.post('/fund.update', response_model=Optional[FundOut], tags=['Fund'])
@@ -278,14 +277,6 @@ async def get_fund_by_int_id(int_id: int):
     return FundOut.parse_dbm_kwargs(**patient.dict())
 
 
-@api_v1_router.get('/fund.by_category', response_model=Optional[FundOut], tags=['Fund'])
-async def get_patient_by_category(category: str):
-    fund = await get_fund(category=category)
-    if fund is None:
-        return None
-    return FundOut.parse_dbm_kwargs(**fund.dict())
-
-
 @api_v1_router.get('/fund.donate', response_model=Optional[OperationStatusOut], tags=['Fund'])
 async def donate_fund(
         fund_id:int = Query(...),
@@ -296,7 +287,14 @@ async def donate_fund(
         raise HTTPException(status_code=400, detail="not money")
     await update_user(user=user, coins=user.coins - count, donations=count)
     return OperationStatusOut(is_done=True)
-    
+
+@api_v1_router.get('/fund.search', tags=['Fund'])
+async def search_funds(
+        q: str = Query(...)
+):
+    result = await find_funds_docs_by_q(q=q)
+    return normalize_response(result)
+
 
 """DUEL"""
 

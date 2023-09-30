@@ -1,9 +1,12 @@
+import datetime
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Any
 
 from aiogram.utils.markdown import quote_html
+from bson import ObjectId
 
 from myresearch.consts import RolesType
 from myresearch.core import settings
@@ -42,3 +45,28 @@ def roles_to_list(roles: RolesType) -> list[str]:
     else:
         raise TypeError("bad type for roles")
     return roles
+
+def normalize_response(data: Any) -> Any:
+    if isinstance(data, list):
+        new_data: list[Any] = [None for _ in range(len(data))]
+        for i, v in enumerate(data):
+            if isinstance(v, ObjectId):
+                new_data[i] = str(v)
+            else:
+                new_data[i] = normalize_response(v)
+
+    elif isinstance(data, dict):
+        new_data: dict = {}
+        for k, v in data.items():
+            if isinstance(v, ObjectId):
+                new_data[k] = str(v)
+            else:
+                new_data[k] = normalize_response(v)
+
+    elif isinstance(data, ObjectId):
+        new_data: str = str(data)
+
+    else:
+        new_data = data
+
+    return new_data
