@@ -381,12 +381,13 @@ async def set_duel_result(
 @api_v1_router.post('/duel.send_report', response_model=Optional[ReportOut], tags=['Duel'])
 async def send_duel_report(
         report_duel_in: ReportDuelIn = Body(...),
+        user: User = Depends(get_strict_current_user)
 ):
-    user = await get_user(int_id=report_duel_in.user_id)
-    if user is None:
-        raise HTTPException(status_code=400, detail="user is none")
+    duel = await get_duel(int_id=report_duel_in.duel_id)
+    if duel is None:
+        raise HTTPException(status_code=400, detail="duel is none")
 
-    report = await create_report(duel_id=report_duel_in.duel_id, desc=report_duel_in.desc, user_id=report_duel_in.user_id, fullname=user.fullname)
+    report = await create_report(duel_id=duel.int_id, desc=report_duel_in.desc, user_id=user.int_id, fullname=user.fullname)
     return SensitiveReportOut.parse_dbm_kwargs(
         **report.dict()
     )

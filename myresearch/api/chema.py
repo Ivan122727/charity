@@ -151,7 +151,6 @@ class SetResultDuelIn(BaseSchemaIn):
 class ReportDuelIn(BaseSchemaIn):
     duel_id: int
     desc: str
-    user_id: int
 
 class EditFundIn(RegFundIn):
     fund_id: int
