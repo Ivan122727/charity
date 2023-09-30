@@ -199,7 +199,7 @@ async def user_top(count: int):
     
 
 @api_v1_router.get('/user.my_employees', response_model=list[UserOut], tags=['User'])
-async def get_my_employees(curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+async def get_my_employees(curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.employee, UserRoles.dev]))):
     return [UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users() if user.company == curr_user.company and user.division == curr_user.division and curr_user.int_id != user.int_id]
 
 
@@ -212,9 +212,9 @@ async def get_categories():
 
 
 @api_v1_router.post('/fund.create', response_model=Optional[FundOut], tags=['Fund'])
-# async def get_all_patients(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.hr, UserRoles.dev]))):
 async def reg_fund(
-        reg_fund_in: RegFundIn = Body(...)
+        reg_fund_in: RegFundIn = Body(...),
+        user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))
 ):
     patient = await create_fund(name=reg_fund_in.name, desc=reg_fund_in.desc, link=reg_fund_in.link, categories=reg_fund_in.categories)
 
@@ -225,13 +225,11 @@ async def reg_fund(
 
 
 @api_v1_router.get('/fund.all', response_model=list[FundOut], tags=['Fund'])
-# async def get_all_patients(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.hr, UserRoles.dev]))):
 async def get_all_funds():
     return [FundOut.parse_dbm_kwargs(**fund.dict()) for fund in await get_funds()]
 
 
 @api_v1_router.get('/fund.by_id', response_model=Optional[FundOut], tags=['Fund'])
-# async def get_patient_by_int_id(int_id: int, user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.hr, UserRoles.dev]))):
 async def get_fund_by_int_id(int_id: int):
     patient = await get_fund(id_=int_id)
     if patient is None:
@@ -240,7 +238,6 @@ async def get_fund_by_int_id(int_id: int):
 
 
 @api_v1_router.get('/fund.by_category', response_model=Optional[FundOut], tags=['Fund'])
-# async def get_patient_by_int_id(int_id: int, user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.hr, UserRoles.dev]))):
 async def get_patient_by_category(category: str):
     fund = await get_fund(category=category)
     if fund is None:
