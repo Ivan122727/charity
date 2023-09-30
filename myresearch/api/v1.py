@@ -203,6 +203,14 @@ async def get_my_employees(curr_user: User = Depends(make_strict_depends_on_role
     return [UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users() if user.company == curr_user.company and user.division == curr_user.division and curr_user.int_id != user.int_id]
 
 
+@api_v1_router.get("/user.me", response_model=SensitiveUserOut, tags=["User"])
+async def get_me(user: User = Depends(get_strict_current_user)):
+    return SensitiveUserOut.parse_dbm_kwargs(
+        **user.dict(),
+        current_token=user.misc_data["current_token"]
+    )
+
+
 """FUND"""
 
 
