@@ -45,8 +45,6 @@ async def create_user(
         fullname: Optional[str] = None,
         company: Optional[str] = None,
         division: Optional[str] = None,
-        coins: Optional[int] = 0,
-        donations: Optional[int] = 0,
         tokens: Optional[list[str]] = None,
         auto_create_at_least_one_token: bool = True,
         roles: RolesType = None
@@ -70,8 +68,8 @@ async def create_user(
         UserFields.tokens: tokens,
         UserFields.company: company,
         UserFields.division: division,
-        UserFields.coins: coins,
-        UserFields.donations: donations,
+        UserFields.coins: 0,
+        UserFields.donations: 0,
 
     }
     inserted_doc = await db.user_collection.insert_document(doc_to_insert)
