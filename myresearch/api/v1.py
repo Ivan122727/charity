@@ -398,7 +398,7 @@ async def get_all_reports(user: User = Depends(make_strict_depends_on_roles(role
     return [ReportOut.parse_dbm_kwargs(**report.dict()) for report in await get_reports()]
 
 
-@api_v1_router.get('/user.by_id', response_model=Optional[ReportOut], tags=['Report'])
+@api_v1_router.get('/report.by_id', response_model=Optional[ReportOut], tags=['Report'])
 async def get_report_by_int_id(int_id: int, report: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
     report = await get_report(id_=int_id)
     if report is None:
@@ -427,28 +427,10 @@ async def process_report(
     return OperationStatusOut(is_done=True)
 
 
-"""REPORT"""
+
+"""ROUTE"""
 
 
-@api_v1_router.post('/duel.create', response_model=Optional[DuelOut], tags=['Duel'])
-async def reg_duel(
-        reg_fund_in: RegDuelIn = Body(...),
-):
-    duel = await create_duel(owner_id=reg_fund_in.owner_id, bet=reg_fund_in.bet)
-    return SensitiveDuelOut.parse_dbm_kwargs(
-        **duel.dict()
-    )
-
-
-@api_v1_router.get('/report.all', response_model=list[ReportOut], tags=['Report'])
+@api_v1_router.get('/route.all', response_model=list[ReportOut], tags=['Report'])
 async def get_all_reports(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
     return [ReportOut.parse_dbm_kwargs(**report.dict()) for report in await get_reports()]
-
-
-@api_v1_router.get('/user.by_id', response_model=Optional[ReportOut], tags=['Report'])
-async def get_report_by_int_id(int_id: int, report: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
-    report = await get_report(id_=int_id)
-    if report is None:
-        return None
-    return ReportOut.parse_dbm_kwargs(**report.dict())
-

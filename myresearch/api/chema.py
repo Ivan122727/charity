@@ -70,6 +70,11 @@ class ReportOut(BaseOutDBMSchema):
     desc: Optional[str]
     duel_id: Optional[int]
 
+class RouteOut(BaseOutDBMSchema):
+    longitude: Optional[float]
+    latitude: Optional[float]
+    duel_id: Optional[int]
+
 class SensitiveUserOut(UserOut):
     tokens: list[str]
     current_token: str
