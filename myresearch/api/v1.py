@@ -167,7 +167,7 @@ async def get_user_by_int_id(int_id: int, user: User = Depends(make_strict_depen
 
 @api_v1_router.get('/user.edit_role', response_model=UserOut, tags=['User'])
 async def edit_user_role(
-        curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
+        # curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
         user_int_id: int = Query(...),
         role: str = Query(...)
 ):
