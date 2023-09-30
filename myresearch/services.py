@@ -115,6 +115,7 @@ async def update_user(
         company: Union[NotSet, Optional[str]] = NotSet, 
         division: Union[NotSet, Optional[str]] = NotSet, 
         coins: Union[NotSet, Optional[int]] = NotSet, 
+        donations: Union[NotSet, Optional[int]] = NotSet, 
 ) -> User:
     if isinstance(user, User):
         pass
@@ -133,7 +134,9 @@ async def update_user(
         set_[UserFields.division] = division
     if is_set(coins):
         set_[UserFields.coins] = coins
-
+    if is_set(donations):
+        set_[UserFields.donations] = donations
+    
     if set_:
         await db.user_collection.update_document_by_id(
             id_=user.oid,

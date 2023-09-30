@@ -12,6 +12,7 @@ from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRe
     UserExistsStatusOut, RegUserIn, AuthUserIn
 from myresearch.consts import FundCategories, MailCodeTypes, UserRoles
 from myresearch.core import db
+from myresearch.db.base import Document
 from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
@@ -285,6 +286,18 @@ async def get_patient_by_category(category: str):
     return FundOut.parse_dbm_kwargs(**fund.dict())
 
 
+@api_v1_router.post('/fund.donate', response_model=Optional[OperationStatusOut], tags=['Fund'])
+async def donate_fund(
+        fund_id:int = Query(...),
+        count:int = Query(...),
+        user: User = Depends(get_strict_current_user)
+):
+    if user.coins < count:
+        raise HTTPException(status_code=400, detail="not money")
+    await update_user(user=user, coins=user.coins - count, donations=count)
+    return OperationStatusOut(is_done=True)
+    
+
 """DUEL"""
 
 
@@ -412,3 +425,30 @@ async def process_report(
         await update_user(user=member, coins=member.coins -sign*duel.bet)
     await db.report_collection.remove_by_int_id(int_id=report_id)
     return OperationStatusOut(is_done=True)
+
+
+"""REPORT"""
+
+
+@api_v1_router.post('/duel.create', response_model=Optional[DuelOut], tags=['Duel'])
+async def reg_duel(
+        reg_fund_in: RegDuelIn = Body(...),
+):
+    duel = await create_duel(owner_id=reg_fund_in.owner_id, bet=reg_fund_in.bet)
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **duel.dict()
+    )
+
+
+@api_v1_router.get('/report.all', response_model=list[ReportOut], tags=['Report'])
+async def get_all_reports(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+    return [ReportOut.parse_dbm_kwargs(**report.dict()) for report in await get_reports()]
+
+
+@api_v1_router.get('/user.by_id', response_model=Optional[ReportOut], tags=['Report'])
+async def get_report_by_int_id(int_id: int, report: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+    report = await get_report(id_=int_id)
+    if report is None:
+        return None
+    return ReportOut.parse_dbm_kwargs(**report.dict())
+
