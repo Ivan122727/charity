@@ -4,12 +4,10 @@
 *.conf
 *.json
 *.zip
-venv
+
 # dirs
 examples
-dump
 .idea
-.pytest_cache
 __pycache__
 cache
 old
@@ -22,6 +20,7 @@ cache_dir
 db_dumps
 mongo_dumps
 config
+venv
 
 # concrete files
 .env
@@ -31,4 +30,3 @@ test.txt
 test.py
 config.json
 test.sh
-playground.py
