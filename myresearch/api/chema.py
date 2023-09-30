@@ -110,6 +110,15 @@ class RegUserIn(BaseSchemaIn):
     fullname: str
     code: str
 
+class FinishRouteIn(BaseSchemaIn):
+    start_latitude: float
+    start_longitude: float
+    finish_latitude: float
+    finish_longitude: float
+    start_time: str
+    secret_key: str
+    type: str
+
 class RegFundIn(BaseSchemaIn):
     name: str
     desc: str
@@ -146,12 +155,6 @@ class ReportDuelIn(BaseSchemaIn):
 
 class EditFundIn(RegFundIn):
     fund_id: int
-
-class RegMedicalHistoryIn(BaseSchemaIn):
-    patient_id: int
-    result: str
-    filepath: str
-    user_id: int
 
 class AuthUserIn(BaseSchemaIn):
     mail: str

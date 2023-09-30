@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query, UploadFile, status, Depends
 from fastapi.responses import FileResponse, JSONResponse
 
 from myresearch.api.deps import get_strict_current_user, make_strict_depends_on_roles
-from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, RegRouteIn, ReportDuelIn, ReportOut, RouteOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveRouteOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
+from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, FinishRouteIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, RegRouteIn, ReportDuelIn, ReportOut, RouteOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveRouteOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
     UserExistsStatusOut, RegUserIn, AuthUserIn
 from myresearch.consts import FundCategories, MailCodeTypes, UserRoles
 from myresearch.core import db
@@ -411,7 +411,7 @@ async def get_report_by_int_id(int_id: int, report: User = Depends(make_strict_d
 
 @api_v1_router.get('/report.process', response_model=OperationStatusOut, tags=['Report'])
 async def process_report(
-        # curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
+        curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
         is_accepted: bool = Query(...),
         duel_id: int = Query(...),
         report_id: int = Query(...)
@@ -447,3 +447,11 @@ async def reg_route(
 async def get_all_reports():
     return [RouteOut.parse_dbm_kwargs(**route.dict()) for route in await get_routes()]
 
+
+@api_v1_router.post('/route.finish', response_model=Optional[OperationStatusOut], tags=['Route'])
+async def finish_route(
+        report_duel_in: FinishRouteIn = Body(...),
+        user: User = Depends(get_strict_current_user)
+):
+    await update_user(user=user, coins=user.coins + 10)
+    return OperationStatusOut(is_done=True)
