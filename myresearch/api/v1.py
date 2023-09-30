@@ -198,6 +198,11 @@ async def user_top(count: int):
     return sorted([UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users()], key=lambda user: user.coins, reverse=True)[:count:]
     
 
+@api_v1_router.get('/user.my_employees', response_model=list[UserOut], tags=['User'])
+async def get_my_employees(curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+    return [UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users() if user.company == curr_user.company and user.division == curr_user.division and curr_user.int_id != user.int_id]
+
+
 """FUND"""
 
 
