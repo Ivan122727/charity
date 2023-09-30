@@ -268,6 +268,8 @@ async def update_duel(
 
 
 """REPORT LOGIC"""
+
+
 async def create_report(
         *,
         duel_id: Optional[int] = None,
@@ -282,6 +284,33 @@ async def create_report(
     inserted_doc = await db.report_collection.insert_document(doc_to_insert)
     created_report = Report.parse_document(inserted_doc)
     return created_report
+
+
+async def get_report(
+        *,
+        id_: Optional[Id] = None,
+        int_id: Optional[int] = None,
+) -> Optional[Report]:
+    filter_ = {}
+    if id_ is not None:
+        filter_.update(db.user_collection.create_id_filter(id_=id_))
+    if int_id is not None:
+        filter_[ReportFields.int_id] = int_id
+
+    if not filter_:
+        raise ValueError("not filter_")
+
+    doc = await db.report_collection.find_document(filter_=filter_)
+    if doc is None:
+        return None
+    return Report.parse_document(doc)
+
+async def get_reports(*, roles: Optional[list[str]] = None) -> list[Report]:
+    reports = [Report.parse_document(doc) async for doc in db.report_collection.create_cursor()]
+    if roles is not None:
+        reports = [report for report in reports if report.compare_roles(roles)]
+    return reports
+
 
 """MAIL CODE LOGIC"""
 

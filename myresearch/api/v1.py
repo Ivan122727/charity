@@ -15,7 +15,7 @@ from myresearch.core import db
 from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
-from myresearch.services import create_duel, create_fund, create_report, get_duel, get_fund, get_funds, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
+from myresearch.services import create_duel, create_fund, create_report, get_duel, get_fund, get_funds, get_report, get_reports, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
     remove_mail_code, update_duel, update_user
 from myresearch.settings import BASE_DIRPATH
 from myresearch.utils import send_mail
@@ -167,7 +167,7 @@ async def get_user_by_int_id(int_id: int, user: User = Depends(make_strict_depen
 
 
 @api_v1_router.get('/user.edit_role', response_model=UserOut, tags=['User'])
-async def edit_user_role(
+async def process_report(
         # curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
         user_int_id: int = Query(...),
         role: str = Query(...)
@@ -349,7 +349,6 @@ async def set_duel_result(
         raise HTTPException(status_code=400, detail="duel is none")
     if duel.referee_id != user.int_id:
         raise HTTPException(status_code=400, detail="you are not referee")
-    print(update_duel_in.winner_id, duel.user_id, "\n", update_duel_in.winner_id, duel.owner_id)
     if update_duel_in.winner_id != duel.user_id and update_duel_in.winner_id != duel.owner_id:
         raise HTTPException(status_code=400, detail="user not exist")
 
@@ -376,3 +375,40 @@ async def send_duel_report(
     return SensitiveReportOut.parse_dbm_kwargs(
         **report.dict()
     )
+
+
+"""REPORT"""
+
+
+@api_v1_router.get('/report.all', response_model=list[ReportOut], tags=['Report'])
+async def get_all_reports(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+    return [ReportOut.parse_dbm_kwargs(**report.dict()) for report in await get_reports()]
+
+
+@api_v1_router.get('/user.by_id', response_model=Optional[ReportOut], tags=['Report'])
+async def get_report_by_int_id(int_id: int, report: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
+    report = await get_report(id_=int_id)
+    if report is None:
+        return None
+    return ReportOut.parse_dbm_kwargs(**report.dict())
+
+
+@api_v1_router.get('/report.process', response_model=OperationStatusOut, tags=['Report'])
+async def process_report(
+        # curr_user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
+        is_accepted: bool = Query(...),
+        duel_id: int = Query(...),
+        report_id: int = Query(...)
+):
+    duel = await get_duel(int_id=duel_id)
+    print(duel)
+    if duel is None:
+        raise HTTPException(status_code=400, detail="duel is none")
+    owner = await get_user(int_id=duel.owner_id)
+    member = await get_user(int_id=duel.user_id)
+    if is_accepted:
+        sign = -1 if duel.winner_id == duel.owner_id else 1
+        await update_user(user=owner, coins=owner.coins + sign*duel.bet)
+        await update_user(user=member, coins=member.coins -sign*duel.bet)
+    await db.report_collection.remove_by_int_id(int_id=report_id)
+    return OperationStatusOut(is_done=True)
