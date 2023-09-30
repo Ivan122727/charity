@@ -236,7 +236,7 @@ async def edit_fund(
         edit_fund_in: EditFundIn = Body(...),
         user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))
 ):
-    fund = await get_fund(id_=edit_fund_in.fund_id)
+    fund = await get_fund(int_id=edit_fund_in.fund_id)
     if user is None:
         raise HTTPException(status_code=400, detail="user is none")
     
@@ -249,6 +249,20 @@ async def edit_fund(
         })
     return FundOut.parse_dbm_kwargs(**(await get_fund(int_id=edit_fund_in.fund_id)).dict())
 
+
+@api_v1_router.get('/fund.delete', response_model=Optional[OperationStatusOut], tags=['Fund'])
+async def delete_fund(
+        fund_id: int, 
+        user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))
+):
+    fund = await get_fund(int_id=fund_id)
+    if user is None:
+        raise HTTPException(status_code=400, detail="user is none")
+    if fund is None:
+        raise HTTPException(status_code=400, detail="fund is none")
+
+    await db.fund_collection.remove_by_int_id(int_id=fund_id)
+    return OperationStatusOut(is_done=True)
 
 @api_v1_router.get('/fund.all', response_model=list[FundOut], tags=['Fund'])
 async def get_all_funds():
