@@ -11,7 +11,6 @@ from pydantic.fields import ModelField
 from myresearch.consts import RolesType
 from myresearch.db.base import BaseFields, Document
 from myresearch.db.mailcode import MailCodeFields
-from myresearch.db.point_interest import PointInterestFields
 from myresearch.db.report import ReportFields
 from myresearch.db.route import RouteFields
 from myresearch.db.user import UserFields
@@ -124,22 +123,16 @@ class Duel(BaseDBM):
 
 class Route(BaseDBM):
     # db fields
-    price: Optional[int] = Field(alias=RouteFields.price)
-    user_id: Optional[int] = Field(alias=RouteFields.user_id)
-    type: Optional[str] = Field(alias=RouteFields.type)
-    time_destroy: Optional[datetime] = Field(alias=RouteFields.time_destroy)
+    longitude: Optional[float] = Field(alias=RouteFields.longitude)
+    latitude: Optional[float] = Field(alias=RouteFields.latitude)
+    desc: Optional[str] = Field(alias=RouteFields.desc)
 
 class Report(BaseDBM):
     # db fields
     duel_id: Optional[str] = Field(alias=ReportFields.duel_id)
     desc: Optional[str] = Field(alias=ReportFields.desc)
     user_id: Optional[int] = Field(alias=ReportFields.user_id)
-
-class PointInterest(BaseDBM):
-    # db fields
-    longitude: Optional[int] = Field(alias=PointInterestFields.longitude)
-    latitude: Optional[int] = Field(alias=PointInterestFields.latitude)
-    desc: Optional[str] = Field(alias=PointInterestFields.desc)
+    fullname: Optional[str] = Field(alias=ReportFields.fullname)
 
 class MailCode(BaseDBM):
     # db fields

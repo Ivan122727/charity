@@ -8,7 +8,7 @@ from fastapi import APIRouter, HTTPException, Query, UploadFile, status, Depends
 from fastapi.responses import FileResponse, JSONResponse
 
 from myresearch.api.deps import get_strict_current_user, make_strict_depends_on_roles
-from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, ReportDuelIn, ReportOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
+from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, RegRouteIn, ReportDuelIn, ReportOut, RouteOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveRouteOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
     UserExistsStatusOut, RegUserIn, AuthUserIn
 from myresearch.consts import FundCategories, MailCodeTypes, UserRoles
 from myresearch.core import db
@@ -16,7 +16,7 @@ from myresearch.db.base import Document
 from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
-from myresearch.services import create_duel, create_fund, create_report, get_duel, get_fund, get_funds, get_report, get_reports, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
+from myresearch.services import create_duel, create_fund, create_report, create_route, get_duel, get_fund, get_funds, get_report, get_reports, get_routes, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
     remove_mail_code, update_duel, update_user
 from myresearch.settings import BASE_DIRPATH
 from myresearch.utils import send_mail
@@ -383,8 +383,11 @@ async def set_duel_result(
 async def send_duel_report(
         report_duel_in: ReportDuelIn = Body(...),
 ):
-    report = await create_report(duel_id=report_duel_in.duel_id, desc=report_duel_in.desc, user_id=report_duel_in.user_id)
-    print(report)
+    user = await get_user(int_id=report_duel_in.user_id)
+    if user is None:
+        raise HTTPException(status_code=400, detail="user is none")
+
+    report = await create_report(duel_id=report_duel_in.duel_id, desc=report_duel_in.desc, user_id=report_duel_in.user_id, fullname=user.fullname)
     return SensitiveReportOut.parse_dbm_kwargs(
         **report.dict()
     )
@@ -430,7 +433,17 @@ async def process_report(
 
 """ROUTE"""
 
+@api_v1_router.post('/route.create', response_model=Optional[SensitiveRouteOut], tags=['Route'])
+async def reg_route(
+        user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev])),
+        reg_route_in: RegRouteIn = Body(...),
+):
+    route = await create_route(longitude=reg_route_in.longitude, latitude=reg_route_in.latitude, desc=reg_route_in.desc)
+    return SensitiveRouteOut.parse_dbm_kwargs(
+        **route.dict()
+    )
 
-@api_v1_router.get('/route.all', response_model=list[ReportOut], tags=['Report'])
-async def get_all_reports(user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))):
-    return [ReportOut.parse_dbm_kwargs(**report.dict()) for report in await get_reports()]
+@api_v1_router.get('/route.all', response_model=list[RouteOut], tags=['Route'])
+async def get_all_reports():
+    return [RouteOut.parse_dbm_kwargs(**route.dict()) for route in await get_routes()]
+

@@ -14,10 +14,11 @@ from myresearch.db.base import Id
 from myresearch.db.mailcode import MailCodeFields
 from myresearch.db.fund import FundFields
 from myresearch.db.report import ReportFields
+from myresearch.db.route import RouteFields
 from myresearch.db.user import UserFields
 from myresearch.db.duel import DuelFields
 from myresearch.helpers import NotSet, is_set
-from myresearch.models import Fund, Report, User, MailCode, Duel
+from myresearch.models import Fund, Report, Route, User, MailCode, Duel
 from myresearch.utils import roles_to_list
 from myresearch.utils import send_mail
 
@@ -207,8 +208,8 @@ async def create_duel(
         DuelFields.is_finish: False
     }
     inserted_doc = await db.duel_collection.insert_document(doc_to_insert)
-    created_fund = Duel.parse_document(inserted_doc)
-    return created_fund
+    created_duel = Duel.parse_document(inserted_doc)
+    return created_duel
 
 async def get_duel(
         *,
@@ -278,11 +279,13 @@ async def create_report(
         duel_id: Optional[int] = None,
         desc: Optional[int] = None,
         user_id: Optional[int] = None,
+        fullname: Optional[str] = None,
 ):
     doc_to_insert = {
         ReportFields.duel_id: duel_id,
         ReportFields.desc: desc,
-        ReportFields.user_id: user_id
+        ReportFields.user_id: user_id, 
+        ReportFields.fullname: fullname
     }
     inserted_doc = await db.report_collection.insert_document(doc_to_insert)
     created_report = Report.parse_document(inserted_doc)
@@ -314,6 +317,30 @@ async def get_reports(*, roles: Optional[list[str]] = None) -> list[Report]:
         reports = [report for report in reports if report.compare_roles(roles)]
     return reports
 
+
+"""ROUTE"""
+
+
+async def get_routes(*, roles: Optional[list[str]] = None) -> list[Route]:
+    routes = [Route.parse_document(doc) async for doc in db.route_collection.create_cursor()]
+    if roles is not None:
+        routes = [route for route in routes if route.compare_roles(roles)]
+    return routes
+
+async def create_route(
+        *,
+        longitude: Optional[float] = None,
+        latitude: Optional[float] = None,
+        desc: Optional[str] = None,
+):
+    doc_to_insert = {
+        RouteFields.longitude: longitude,
+        RouteFields.latitude: latitude,
+        RouteFields.desc: desc,
+    }
+    inserted_doc = await db.route_collection.insert_document(doc_to_insert)
+    created_fund = Route.parse_document(inserted_doc)
+    return created_fund
 
 """MAIL CODE LOGIC"""
 

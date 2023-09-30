@@ -69,11 +69,12 @@ class ReportOut(BaseOutDBMSchema):
     user_id: Optional[int]
     desc: Optional[str]
     duel_id: Optional[int]
+    fullname: Optional[str]
 
 class RouteOut(BaseOutDBMSchema):
     longitude: Optional[float]
     latitude: Optional[float]
-    duel_id: Optional[int]
+    desc: Optional[str]
 
 class SensitiveUserOut(UserOut):
     tokens: list[str]
@@ -86,6 +87,9 @@ class SensitiveReportOut(ReportOut):
     ...
 
 class SensitiveDuelOut(DuelOut):
+    ...
+
+class SensitiveRouteOut(RouteOut):
     ...
 
 
@@ -115,6 +119,11 @@ class RegFundIn(BaseSchemaIn):
 class RegDuelIn(BaseSchemaIn):
     owner_id: int
     bet: int
+
+class RegRouteIn(BaseSchemaIn):
+    longitude: float
+    latitude: float
+    desc: str
 
 class EnterMemberDuelIn(BaseSchemaIn):
     user_id: int

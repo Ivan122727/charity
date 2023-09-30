@@ -10,7 +10,6 @@ from myresearch.db.user import UserCollection
 from myresearch.db.duel import DuelCollection
 from myresearch.db.fund import FundCollection
 from myresearch.db.report import ReportCollection
-from myresearch.db.point_interest import PointInterestCollection
 from myresearch.db.route import RouteCollection
 
 
@@ -62,12 +61,6 @@ class DB:
             pymongo_db=self.pymongo_db
         )
         self.collections.append(self.report_collection)
-
-        self.point_interest_collection: PointInterestCollection = PointInterestCollection.from_mongo_db(
-            motor_db=self.motor_db,
-            pymongo_db=self.pymongo_db
-        )
-        self.collections.append(self.point_interest_collection)
 
         self.route_collection: RouteCollection = RouteCollection.from_mongo_db(
             motor_db=self.motor_db,
