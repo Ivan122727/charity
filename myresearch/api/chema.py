@@ -98,6 +98,9 @@ class RegFundIn(BaseSchemaIn):
     link: str
     categories: str
 
+class EditFundIn(RegFundIn):
+    fund_id: int
+
 class RegMedicalHistoryIn(BaseSchemaIn):
     patient_id: int
     result: str

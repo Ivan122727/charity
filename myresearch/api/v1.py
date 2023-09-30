@@ -8,10 +8,11 @@ from fastapi import APIRouter, HTTPException, Query, UploadFile, status, Depends
 from fastapi.responses import FileResponse, JSONResponse
 
 from myresearch.api.deps import get_strict_current_user, make_strict_depends_on_roles
-from myresearch.api.chema import MedicalHistoryOut, OperationStatusOut, FundOut, RegMedicalHistoryIn, RegFundIn, SensitiveMedicalHistoryOut, SensitiveFundOut, SensitiveUserOut, UpdateUserIn, UserOut, \
+from myresearch.api.chema import EditFundIn, MedicalHistoryOut, OperationStatusOut, FundOut, RegMedicalHistoryIn, RegFundIn, SensitiveMedicalHistoryOut, SensitiveFundOut, SensitiveUserOut, UpdateUserIn, UserOut, \
     UserExistsStatusOut, RegUserIn, AuthUserIn
 from myresearch.consts import FundCategories, MailCodeTypes, UserRoles
 from myresearch.core import db
+from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
 from myresearch.services import create_fund, get_fund, get_funds, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
@@ -230,6 +231,23 @@ async def reg_fund(
         **patient.dict()
     )
 
+@api_v1_router.post('/fund.update', response_model=Optional[FundOut], tags=['Fund'])
+async def edit_fund(
+        edit_fund_in: EditFundIn = Body(...),
+        user: User = Depends(make_strict_depends_on_roles(roles=[UserRoles.dev]))
+):
+    fund = await get_fund(id_=edit_fund_in.fund_id)
+    if user is None:
+        raise HTTPException(status_code=400, detail="user is none")
+    
+    if fund is None:
+        raise HTTPException(status_code=400, detail="fund is none")
+
+    await db.fund_collection.update_document_by_int_id(int_id=edit_fund_in.fund_id, set_={
+        FundFields.name: edit_fund_in.name, FundFields.desc: edit_fund_in.desc, 
+        FundFields.link: edit_fund_in.link, FundFields.categories: edit_fund_in.categories
+        })
+    return FundOut.parse_dbm_kwargs(**(await get_fund(int_id=edit_fund_in.fund_id)).dict())
 
 
 @api_v1_router.get('/fund.all', response_model=list[FundOut], tags=['Fund'])
