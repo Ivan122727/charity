@@ -197,7 +197,7 @@ async def me_update(update_user_in: UpdateUserIn, user: User = Depends(get_stric
 
 @api_v1_router.get('/user.top', response_model=list[UserOut], tags=['User'])
 async def user_top(count: int):
-    return sorted([UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users()], key=lambda user: user.coins, reverse=True)[:count:]
+    return sorted([UserOut.parse_dbm_kwargs(**user.dict()) for user in await get_users()], key=lambda user: user.donations, reverse=True)[:count:]
     
 
 @api_v1_router.get('/user.my_employees', response_model=list[UserOut], tags=['User'])
