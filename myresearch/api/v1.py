@@ -286,7 +286,7 @@ async def get_patient_by_category(category: str):
     return FundOut.parse_dbm_kwargs(**fund.dict())
 
 
-@api_v1_router.post('/fund.donate', response_model=Optional[OperationStatusOut], tags=['Fund'])
+@api_v1_router.get('/fund.donate', response_model=Optional[OperationStatusOut], tags=['Fund'])
 async def donate_fund(
         fund_id:int = Query(...),
         count:int = Query(...),
