@@ -54,6 +54,7 @@ class UserOut(BaseOutDBMSchema):
 class FundOut(BaseOutDBMSchema):
     name: Optional[str]
     desc: Optional[str]
+    money: Optional[int]
     link: Optional[str]
     categories: Optional[list[str]]
 

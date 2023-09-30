@@ -216,11 +216,6 @@ async def get_me(user: User = Depends(get_strict_current_user)):
 """FUND"""
 
 
-@api_v1_router.get('/categories', tags=['Fund'])
-async def get_categories():
-    return FundCategories.set()
-
-
 @api_v1_router.post('/fund.create', response_model=Optional[FundOut], tags=['Fund'])
 async def reg_fund(
         reg_fund_in: RegFundIn = Body(...),
@@ -245,7 +240,7 @@ async def edit_fund(
 
     await db.fund_collection.update_document_by_int_id(int_id=edit_fund_in.fund_id, set_={
         FundFields.name: edit_fund_in.name, FundFields.desc: edit_fund_in.desc, 
-        FundFields.link: edit_fund_in.link, FundFields.categories: edit_fund_in.categories
+        FundFields.link: edit_fund_in.link
         })
     return FundOut.parse_dbm_kwargs(**(await get_fund(int_id=edit_fund_in.fund_id)).dict())
 
@@ -283,11 +278,16 @@ async def donate_fund(
         count:int = Query(...),
         user: User = Depends(get_strict_current_user)
 ):
+    fund = await get_fund(int_id=fund_id)
+    if fund is None:
+        raise HTTPException(status_code=400, detail="fund is None")
+
     if user.coins < count:
         raise HTTPException(status_code=400, detail="not money")
     await update_user(user=user, coins=user.coins - count, donations=count)
+    await db.fund_collection.update_document_by_int_id(int_id=fund_id, set_={FundFields.money: fund.money + count})
     return OperationStatusOut(is_done=True)
-
+ 
 @api_v1_router.get('/fund.search', tags=['Fund'])
 async def search_funds(
         q: str = Query(...)
@@ -299,43 +299,44 @@ async def search_funds(
 """DUEL"""
 
 
-@api_v1_router.post('/duel.create', response_model=Optional[DuelOut], tags=['Duel'])
+@api_v1_router.get('/duel.create', response_model=Optional[DuelOut], tags=['Duel'])
 async def reg_duel(
-        reg_fund_in: RegDuelIn = Body(...),
+    bet: int = Query(...),
+    user: User = Depends(get_strict_current_user)
 ):
-    duel = await create_duel(owner_id=reg_fund_in.owner_id, bet=reg_fund_in.bet)
+    duel = await create_duel(owner_id=user.int_id, bet=bet)
     return SensitiveDuelOut.parse_dbm_kwargs(
         **duel.dict()
     )
 
 
-@api_v1_router.post('/duel.enter_member', response_model=Optional[DuelOut], tags=['Duel'])
+@api_v1_router.get('/duel.enter_member', response_model=Optional[DuelOut], tags=['Duel'])
 async def enter_duel_member(
-        update_duel_in: EnterMemberDuelIn = Body(...),
+        duel_id: int = Query(...),
         user: User = Depends(get_strict_current_user)
 ):
-    update_duel_data = update_duel_in.dict(exclude_unset=True)
     user = await update_duel(
         user=user,
-        **update_duel_data
+        user_id=user.int_id,
+        duel_id=duel_id
     )
     return SensitiveDuelOut.parse_dbm_kwargs(
-        **(await get_duel(int_id=update_duel_in.duel_id)).dict(),
+        **(await get_duel(int_id=duel_id)).dict(),
     )
 
 
-@api_v1_router.post('/duel.enter_referee', response_model=Optional[DuelOut], tags=['Duel'])
+@api_v1_router.get('/duel.enter_referee', response_model=Optional[DuelOut], tags=['Duel'])
 async def enter_duel_referee(
-        update_duel_in: EnterRefereeDuelIn = Body(...),
+        duel_id: int = Query(...),
         user: User = Depends(get_strict_current_user)
 ):
-    update_duel_data = update_duel_in.dict(exclude_unset=True)
     user = await update_duel(
         user=user,
-        **update_duel_data
+        referee_id=user.int_id,
+        duel_id=duel_id
     )
     return SensitiveDuelOut.parse_dbm_kwargs(
-        **(await get_duel(int_id=update_duel_in.duel_id)).dict(),
+        **(await get_duel(int_id=duel_id)).dict(),
     )
 
 @api_v1_router.get('/duel.check', response_model=Optional[DuelOut], tags=['Duel'])

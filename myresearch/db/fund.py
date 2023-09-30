@@ -6,6 +6,7 @@ from myresearch.db.base import BaseCollection, BaseFields
 class FundFields(BaseFields):
     name = "name"
     desc = "desc"
+    money = "money"
     link = "link"
     categories = "categories"
 

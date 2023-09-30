@@ -219,6 +219,7 @@ async def create_fund(
         FundFields.name: name,
         FundFields.desc: desc,
         FundFields.link: link,
+        FundFields.money: 0,
         FundFields.categories: generate_tags(desc)
     }
     inserted_doc = await db.fund_collection.insert_document(doc_to_insert)

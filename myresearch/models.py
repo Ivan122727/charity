@@ -109,6 +109,7 @@ class Fund(BaseDBM):
     # db fields
     name: Optional[str] = Field(alias=FundFields.name)
     desc: Optional[str] = Field(alias=FundFields.desc)
+    money: Optional[int] = Field(alias=FundFields.money)
     link: Optional[str] = Field(alias=FundFields.link)
     categories: list[str] = Field(alias=FundFields.categories, default=[])
     # categories: Optional[list[str]] = Field(alias=FundFields.categories)
