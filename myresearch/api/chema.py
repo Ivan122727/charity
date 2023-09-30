@@ -57,12 +57,18 @@ class FundOut(BaseOutDBMSchema):
     link: Optional[str]
     categories: Optional[str]
 
-class MedicalHistoryOut(BaseOutDBMSchema):
-    patient_id: Optional[int]
-    result: Optional[str]
-    filepath: Optional[str]
+class DuelOut(BaseOutDBMSchema):
+    bet: Optional[int]
     user_id: Optional[int]
+    owner_id: Optional[int]
+    referee_id: Optional[int]
+    is_finish: Optional[bool]
+    winner_id: Optional[int]
 
+class ReportOut(BaseOutDBMSchema):
+    user_id: Optional[int]
+    desc: Optional[str]
+    duel_id: Optional[int]
 
 class SensitiveUserOut(UserOut):
     tokens: list[str]
@@ -71,7 +77,10 @@ class SensitiveUserOut(UserOut):
 class SensitiveFundOut(FundOut):
     ...
 
-class SensitiveMedicalHistoryOut(MedicalHistoryOut):
+class SensitiveReportOut(ReportOut):
+    ...
+
+class SensitiveDuelOut(DuelOut):
     ...
 
 
@@ -97,6 +106,29 @@ class RegFundIn(BaseSchemaIn):
     desc: str
     link: str
     categories: str
+
+class RegDuelIn(BaseSchemaIn):
+    owner_id: int
+    bet: int
+
+class EnterMemberDuelIn(BaseSchemaIn):
+    user_id: int
+    duel_id: int
+
+class EnterRefereeDuelIn(BaseSchemaIn):
+    referee_id: int
+    duel_id: int
+
+class SetResultDuelIn(BaseSchemaIn):
+    referee_id: int
+    duel_id: int
+    winner_id: int
+    is_finish: bool
+
+class ReportDuelIn(BaseSchemaIn):
+    duel_id: int
+    desc: str
+    user_id: int
 
 class EditFundIn(RegFundIn):
     fund_id: int

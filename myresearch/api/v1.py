@@ -8,15 +8,15 @@ from fastapi import APIRouter, HTTPException, Query, UploadFile, status, Depends
 from fastapi.responses import FileResponse, JSONResponse
 
 from myresearch.api.deps import get_strict_current_user, make_strict_depends_on_roles
-from myresearch.api.chema import EditFundIn, MedicalHistoryOut, OperationStatusOut, FundOut, RegMedicalHistoryIn, RegFundIn, SensitiveMedicalHistoryOut, SensitiveFundOut, SensitiveUserOut, UpdateUserIn, UserOut, \
+from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, ReportDuelIn, ReportOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
     UserExistsStatusOut, RegUserIn, AuthUserIn
 from myresearch.consts import FundCategories, MailCodeTypes, UserRoles
 from myresearch.core import db
 from myresearch.db.fund import FundFields
 from myresearch.db.user import UserFields
 from myresearch.models import User
-from myresearch.services import create_fund, get_fund, get_funds, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
-    remove_mail_code, update_user
+from myresearch.services import create_duel, create_fund, create_report, get_duel, get_fund, get_funds, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
+    remove_mail_code, update_duel, update_user
 from myresearch.settings import BASE_DIRPATH
 from myresearch.utils import send_mail
 
@@ -283,3 +283,96 @@ async def get_patient_by_category(category: str):
     if fund is None:
         return None
     return FundOut.parse_dbm_kwargs(**fund.dict())
+
+
+"""DUEL"""
+
+
+@api_v1_router.post('/duel.create', response_model=Optional[DuelOut], tags=['Duel'])
+async def reg_duel(
+        reg_fund_in: RegDuelIn = Body(...),
+):
+    duel = await create_duel(owner_id=reg_fund_in.owner_id, bet=reg_fund_in.bet)
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **duel.dict()
+    )
+
+
+@api_v1_router.post('/duel.enter_member', response_model=Optional[DuelOut], tags=['Duel'])
+async def enter_duel_member(
+        update_duel_in: EnterMemberDuelIn = Body(...),
+        user: User = Depends(get_strict_current_user)
+):
+    update_duel_data = update_duel_in.dict(exclude_unset=True)
+    user = await update_duel(
+        user=user,
+        **update_duel_data
+    )
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **(await get_duel(int_id=update_duel_in.duel_id)).dict(),
+    )
+
+
+@api_v1_router.post('/duel.enter_referee', response_model=Optional[DuelOut], tags=['Duel'])
+async def enter_duel_referee(
+        update_duel_in: EnterRefereeDuelIn = Body(...),
+        user: User = Depends(get_strict_current_user)
+):
+    update_duel_data = update_duel_in.dict(exclude_unset=True)
+    user = await update_duel(
+        user=user,
+        **update_duel_data
+    )
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **(await get_duel(int_id=update_duel_in.duel_id)).dict(),
+    )
+
+@api_v1_router.get('/duel.check', response_model=Optional[DuelOut], tags=['Duel'])
+async def enter_duel_referee(
+        duel_id: int
+):
+    duel =  await get_duel(int_id=duel_id)
+    if duel is None:
+        raise HTTPException(status_code=400, detail="duel is none")
+         
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **(duel).dict(),
+    )
+
+@api_v1_router.post('/duel.set_result', response_model=Optional[DuelOut], tags=['Duel'])
+async def set_duel_result(
+        update_duel_in: SetResultDuelIn = Body(...),
+        user: User = Depends(get_strict_current_user)
+):
+    duel = await get_duel(int_id=update_duel_in.duel_id)
+    if duel is None:
+        raise HTTPException(status_code=400, detail="duel is none")
+    if duel.referee_id != user.int_id:
+        raise HTTPException(status_code=400, detail="you are not referee")
+    print(update_duel_in.winner_id, duel.user_id, "\n", update_duel_in.winner_id, duel.owner_id)
+    if update_duel_in.winner_id != duel.user_id and update_duel_in.winner_id != duel.owner_id:
+        raise HTTPException(status_code=400, detail="user not exist")
+
+    update_duel_data = update_duel_in.dict(exclude_unset=True)
+    user = await update_duel(
+        user=user,
+        **update_duel_data
+    )
+    owner = await get_user(int_id=duel.owner_id)
+    member = await get_user(int_id=duel.user_id)
+    sign = 1 if duel.winner_id == duel.owner_id else -1
+    await update_user(user=owner, coins=owner.coins + sign*duel.bet)
+    await update_user(user=member, coins=member.coins -sign*duel.bet)
+    return SensitiveDuelOut.parse_dbm_kwargs(
+        **(await get_duel(int_id=update_duel_in.duel_id)).dict(),
+    )
+
+@api_v1_router.post('/duel.send_report', response_model=Optional[ReportOut], tags=['Duel'])
+async def send_duel_report(
+        report_duel_in: ReportDuelIn = Body(...),
+):
+    report = await create_report(duel_id=report_duel_in.duel_id, desc=report_duel_in.desc, user_id=report_duel_in.user_id)
+    print(report)
+    return SensitiveReportOut.parse_dbm_kwargs(
+        **report.dict()
+    )

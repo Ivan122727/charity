@@ -13,10 +13,11 @@ from myresearch.core import db
 from myresearch.db.base import Id
 from myresearch.db.mailcode import MailCodeFields
 from myresearch.db.fund import FundFields
+from myresearch.db.report import ReportFields
 from myresearch.db.user import UserFields
 from myresearch.db.duel import DuelFields
 from myresearch.helpers import NotSet, is_set
-from myresearch.models import Fund, User, MailCode, Duel
+from myresearch.models import Fund, Report, User, MailCode, Duel
 from myresearch.utils import roles_to_list
 from myresearch.utils import send_mail
 
@@ -113,6 +114,7 @@ async def update_user(
         user: Union[User, ObjectId],
         company: Union[NotSet, Optional[str]] = NotSet, 
         division: Union[NotSet, Optional[str]] = NotSet, 
+        coins: Union[NotSet, Optional[int]] = NotSet, 
 ) -> User:
     if isinstance(user, User):
         pass
@@ -129,6 +131,8 @@ async def update_user(
         set_[UserFields.company] = company
     if is_set(division):
         set_[UserFields.division] = division
+    if is_set(coins):
+        set_[UserFields.coins] = coins
 
     if set_:
         await db.user_collection.update_document_by_id(
@@ -185,6 +189,99 @@ async def get_funds(*, roles: Optional[list[str]] = None) -> list[Fund]:
         funds = [fund for fund in funds if funds.compare_roles(roles)]
     return funds
 
+
+"""DUEL LOGIC"""
+
+
+async def create_duel(
+        *,
+        owner_id: Optional[int] = None,
+        bet: Optional[int] = None,
+):
+    doc_to_insert = {
+        DuelFields.bet: bet,
+        DuelFields.owner_id: owner_id,
+        DuelFields.is_finish: False
+    }
+    inserted_doc = await db.duel_collection.insert_document(doc_to_insert)
+    created_fund = Duel.parse_document(inserted_doc)
+    return created_fund
+
+async def get_duel(
+        *,
+        id_: Optional[Id] = None,
+        int_id: Optional[int] = None,
+) -> Optional[Duel]:
+    filter_ = {}
+    if id_ is not None:
+        filter_.update(db.fund_collection.create_id_filter(id_=id_))
+    if int_id is not None:
+        filter_[FundFields.int_id] = int_id
+
+    if not filter_:
+        raise ValueError("not filter_")
+
+    doc = await db.duel_collection.find_document(filter_=filter_)
+    if doc is None:
+        return None
+    return Duel.parse_document(doc)
+
+async def update_duel(
+        *,
+        user: Union[User, ObjectId],
+        duel_id: int,
+        user_id: Union[NotSet, Optional[int]] = NotSet, 
+        referee_id: Union[NotSet, Optional[int]] = NotSet, 
+        is_finish: Union[NotSet, Optional[bool]] = NotSet, 
+        winner_id: Union[NotSet, Optional[int]] = NotSet, 
+) -> Duel:
+    if isinstance(user, User):
+        pass
+    elif isinstance(user, ObjectId):
+        user = await get_user(id_=user)
+    else:
+        raise TypeError("bad type for user")
+
+    if user is None:
+        raise ValueError("user is None")
+
+    if await get_duel(int_id=duel_id) is None:
+        raise TypeError("duel is None")
+
+    set_ = {}
+    if is_set(user_id):
+        set_[DuelFields.user_id] = user_id
+    if is_set(referee_id):
+        set_[DuelFields.referee_id] = referee_id
+    if is_set(is_finish):
+        set_[DuelFields.is_finish] = is_finish
+    if is_set(winner_id):
+        set_[DuelFields.winner_id] = winner_id
+
+    if set_:
+        await db.duel_collection.update_document_by_int_id(
+            int_id=duel_id,
+            set_=set_
+        )
+
+    return await get_duel(int_id=duel_id)
+
+
+"""REPORT LOGIC"""
+async def create_report(
+        *,
+        duel_id: Optional[int] = None,
+        desc: Optional[int] = None,
+        user_id: Optional[int] = None,
+):
+    doc_to_insert = {
+        ReportFields.duel_id: duel_id,
+        ReportFields.desc: desc,
+        ReportFields.user_id: user_id
+    }
+    inserted_doc = await db.report_collection.insert_document(doc_to_insert)
+    created_report = Report.parse_document(inserted_doc)
+    return created_report
 
 """MAIL CODE LOGIC"""
 
@@ -278,3 +375,4 @@ async def create_mail_code(
     created_mail_code.to_user = to_user
 
     return created_mail_code
+

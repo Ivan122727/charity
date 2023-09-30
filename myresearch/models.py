@@ -133,6 +133,7 @@ class Report(BaseDBM):
     # db fields
     duel_id: Optional[str] = Field(alias=ReportFields.duel_id)
     desc: Optional[str] = Field(alias=ReportFields.desc)
+    user_id: Optional[int] = Field(alias=ReportFields.user_id)
 
 class PointInterest(BaseDBM):
     # db fields

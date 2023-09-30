@@ -6,6 +6,7 @@ from myresearch.db.base import BaseCollection, BaseFields
 class ReportFields(BaseFields):
     duel_id = "duel_id"
     desc = "desc"
+    user_id = "user_id"
 
 class ReportCollection(BaseCollection):
     COLLECTION_NAME = "report"
