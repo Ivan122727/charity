@@ -1,0 +1,34 @@
+# extensions
+*.log
+*.png
+*.conf
+*.json
+*.zip
+venv
+# dirs
+examples
+dump
+.idea
+.pytest_cache
+__pycache__
+cache
+old
+wgconfigs
+foo
+bar
+logs
+cache_dir
+.pytest_cache
+db_dumps
+mongo_dumps
+config
+
+# concrete files
+.env
+.env_test_prod
+test.txt
+.env_prod
+test.py
+config.json
+test.sh
+playground.py
