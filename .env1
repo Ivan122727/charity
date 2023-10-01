@@ -1,7 +1,0 @@
-mongo_host="127.0.0.1"
-mongo_port="27017"
-mongo_db_name="myresearch"
-mailru_login1 = 'pochta.sputnik@mail.ru'
-mailru_login = 'info@uust-astrogame.ru'
-mailru_password1 = 'yfL8BUyziCq6n3yEXPuU'
-mailru_password = '8ktnYw0GDGLTNi6uKHwj'
