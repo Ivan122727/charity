@@ -25,15 +25,15 @@ async def insert_test_data():
         UserFields.coins: random.randint(200, 1000),
         UserFields.donations: random.randint(0, 1000),
     }
-    ilya = {
-        UserFields.fullname: "Хакимов Илья Александрович",
-        UserFields.roles: [UserRoles.employee],
-        UserFields.mail: "ilyakhakimov03@gmail.com",
-        UserFields.company: "Codenrock",
-        UserFields.division: "IT",
-        UserFields.coins: random.randint(200, 1000),
-        UserFields.donations: random.randint(0, 1000),
-    }
+    # ilya = {
+    #     UserFields.fullname: "Хакимов Илья Александрович",
+    #     UserFields.roles: [UserRoles.employee],
+    #     UserFields.mail: "ilyakhakimov03@gmail.com",
+    #     UserFields.company: "Codenrock",
+    #     UserFields.division: "IT",
+    #     UserFields.coins: random.randint(200, 1000),
+    #     UserFields.donations: random.randint(0, 1000),
+    # }
     vadim = {
         UserFields.fullname: "Султанов Вадим Муслимович",
         UserFields.roles: [UserRoles.user],
