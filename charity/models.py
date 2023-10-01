@@ -8,15 +8,15 @@ from bson import ObjectId
 from pydantic import BaseModel, Field, Extra
 from pydantic.fields import ModelField
 
-from myresearch.consts import RolesType
-from myresearch.db.base import BaseFields, Document
-from myresearch.db.mailcode import MailCodeFields
-from myresearch.db.report import ReportFields
-from myresearch.db.route import RouteFields
-from myresearch.db.user import UserFields
-from myresearch.db.duel import DuelFields
-from myresearch.db.fund import FundFields
-from myresearch.utils import roles_to_list
+from charity.consts import RolesType
+from charity.db.base import BaseFields, Document
+from charity.db.mailcode import MailCodeFields
+from charity.db.report import ReportFields
+from charity.db.route import RouteFields
+from charity.db.user import UserFields
+from charity.db.duel import DuelFields
+from charity.db.fund import FundFields
+from charity.utils import roles_to_list
 
 
 class BaseDBM(BaseModel):

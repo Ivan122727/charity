@@ -8,20 +8,20 @@ import binascii
 import pymongo
 from bson import ObjectId
 
-from myresearch.consts import UserRoles, RolesType
-from myresearch.core import db
-from myresearch.db.base import Document, Id
-from myresearch.db.mailcode import MailCodeFields
-from myresearch.db.fund import FundFields
-from myresearch.db.report import ReportFields
-from myresearch.db.route import RouteFields
-from myresearch.db.user import UserFields
-from myresearch.db.duel import DuelFields
-from myresearch.helpers import NotSet, is_set
-from myresearch.models import Fund, Report, Route, User, MailCode, Duel
-from myresearch.morpher import cut_side_punctuation, is_adj, to_normal_form
-from myresearch.utils import roles_to_list
-from myresearch.utils import send_mail
+from charity.consts import UserRoles, RolesType
+from charity.core import db
+from charity.db.base import Document, Id
+from charity.db.mailcode import MailCodeFields
+from charity.db.fund import FundFields
+from charity.db.report import ReportFields
+from charity.db.route import RouteFields
+from charity.db.user import UserFields
+from charity.db.duel import DuelFields
+from charity.helpers import NotSet, is_set
+from charity.models import Fund, Report, Route, User, MailCode, Duel
+from charity.morpher import cut_side_punctuation, is_adj, to_normal_form
+from charity.utils import roles_to_list
+from charity.utils import send_mail
 
 log = logging.getLogger()
 

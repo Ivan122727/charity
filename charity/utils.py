@@ -8,8 +8,8 @@ from typing import Any
 from aiogram.utils.markdown import quote_html
 from bson import ObjectId
 
-from myresearch.consts import RolesType
-from myresearch.core import settings
+from charity.consts import RolesType
+from charity.core import settings
 
 log = logging.getLogger(__name__)
 

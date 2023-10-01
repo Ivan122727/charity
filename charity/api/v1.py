@@ -7,19 +7,19 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query, UploadFile, status, Depends, Body
 from fastapi.responses import FileResponse, JSONResponse
 
-from myresearch.api.deps import get_strict_current_user, make_strict_depends_on_roles
-from myresearch.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, FinishRouteIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, RegRouteIn, ReportDuelIn, ReportOut, RouteOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveRouteOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
+from charity.api.deps import get_strict_current_user, make_strict_depends_on_roles
+from charity.api.chema import DuelOut, EditFundIn, EnterMemberDuelIn, EnterRefereeDuelIn, FinishRouteIn, OperationStatusOut, FundOut, RegDuelIn, RegFundIn, RegRouteIn, ReportDuelIn, ReportOut, RouteOut, SensitiveDuelOut, SensitiveFundOut, SensitiveReportOut, SensitiveRouteOut, SensitiveUserOut, SetResultDuelIn, UpdateUserIn, UserOut, \
     UserExistsStatusOut, RegUserIn, AuthUserIn
-from myresearch.consts import ActionType, MailCodeTypes, UserRoles
-from myresearch.core import db
-from myresearch.db.base import Document
-from myresearch.db.fund import FundFields
-from myresearch.db.user import UserFields
-from myresearch.models import User
-from myresearch.services import create_duel, create_fund, create_report, create_route, find_funds_docs_by_q, get_duel, get_fund, get_funds, get_report, get_reports, get_routes, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
+from charity.consts import ActionType, MailCodeTypes, UserRoles
+from charity.core import db
+from charity.db.base import Document
+from charity.db.fund import FundFields
+from charity.db.user import UserFields
+from charity.models import User
+from charity.services import create_duel, create_fund, create_report, create_route, find_funds_docs_by_q, get_duel, get_fund, get_funds, get_report, get_reports, get_routes, get_user, get_mail_codes, create_mail_code, generate_token, create_user, get_users, \
     remove_mail_code, update_duel, update_user
-from myresearch.settings import BASE_DIRPATH
-from myresearch.utils import normalize_response, send_mail, get_price
+from charity.settings import BASE_DIRPATH
+from charity.utils import normalize_response, send_mail, get_price
 
 api_v1_router = APIRouter(prefix="/v1")
 

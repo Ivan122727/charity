@@ -1,8 +1,8 @@
 import asyncio
 
-from myresearch.cache_dir import CacheDir
-from myresearch.db.db import DB
-from myresearch.settings import Settings
+from charity.cache_dir import CacheDir
+from charity.db.db import DB
+from charity.settings import Settings
 from pymorphy2 import MorphAnalyzer
 
 settings = Settings()

@@ -4,9 +4,9 @@ from fastapi import Depends, HTTPException, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import status
 
-from myresearch.consts import RolesType
-from myresearch.models import User
-from myresearch.services import get_user
+from charity.consts import RolesType
+from charity.models import User
+from charity.services import get_user
 
 
 async def get_current_user(*, ac: HTTPAuthorizationCredentials = Security(HTTPBearer())) -> Optional[User]:

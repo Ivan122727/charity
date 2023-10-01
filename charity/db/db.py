@@ -5,12 +5,12 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from pymongo import MongoClient
 from pymongo.errors import OperationFailure, ConnectionFailure
 
-from myresearch.db.mailcode import MailCodeCollection
-from myresearch.db.user import UserCollection
-from myresearch.db.duel import DuelCollection
-from myresearch.db.fund import FundCollection
-from myresearch.db.report import ReportCollection
-from myresearch.db.route import RouteCollection
+from charity.db.mailcode import MailCodeCollection
+from charity.db.user import UserCollection
+from charity.db.duel import DuelCollection
+from charity.db.fund import FundCollection
+from charity.db.report import ReportCollection
+from charity.db.route import RouteCollection
 
 
 class CannotConnectToDb(Exception):
@@ -113,7 +113,7 @@ class DB:
 
 
 async def __example():
-    from myresearch.core import db
+    from charity.core import db
     await db.team_collection.get_all_docs()
 
 

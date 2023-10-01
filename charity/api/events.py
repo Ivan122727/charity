@@ -1,8 +1,8 @@
 import logging
 
-from myresearch.consts import UserRoles, Modes
-from myresearch.core import db, settings
-from myresearch.db.db import CannotConnectToDb
+from charity.consts import UserRoles, Modes
+from charity.core import db, settings
+from charity.db.db import CannotConnectToDb
 
 log = logging.getLogger(__name__)
 

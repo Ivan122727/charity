@@ -12,7 +12,7 @@ from pymongo.cursor import Cursor
 from pymongo.database import Database
 from pymongo.results import InsertOneResult
 
-from myresearch.helpers import SetForClass
+from charity.helpers import SetForClass
 
 Document = dict[str, Any]
 Filter = dict[str, Any]

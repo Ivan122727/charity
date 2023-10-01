@@ -1,6 +1,6 @@
 import pymongo
 
-from myresearch.db.base import BaseCollection, BaseFields
+from charity.db.base import BaseCollection, BaseFields
 
 
 class RouteFields(BaseFields):

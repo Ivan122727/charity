@@ -2,7 +2,7 @@ import logging
 
 
 def setup_logging():
-    from myresearch.core import settings
+    from charity.core import settings
 
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)

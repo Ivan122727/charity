@@ -4,11 +4,11 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 
-from myresearch.api.events import on_startup, on_shutdown
-from myresearch.api.v1 import api_v1_router
-from myresearch.consts import UserRoles
-from myresearch.core import settings
-from myresearch.log import setup_logging
+from charity.api.events import on_startup, on_shutdown
+from charity.api.v1 import api_v1_router
+from charity.consts import UserRoles
+from charity.core import settings
+from charity.log import setup_logging
 
 log = logging.getLogger(__name__)
 

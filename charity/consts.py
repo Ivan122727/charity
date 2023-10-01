@@ -1,6 +1,6 @@
 from typing import Union
 
-from myresearch.helpers import SetForClass
+from charity.helpers import SetForClass
 
 
 class MailCodeTypes(SetForClass):

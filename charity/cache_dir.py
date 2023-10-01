@@ -49,7 +49,7 @@ class CacheDir:
 
 
 def test_cache_dir():
-    from myresearch.core import settings
+    from charity.core import settings
     cache_dir = CacheDir(cache_dir=settings.cache_dirpath)
     were = set()
     for _ in range(1000):

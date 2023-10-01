@@ -1,6 +1,6 @@
 from typing import Optional
 
-from myresearch.core import morpher
+from charity.core import morpher
 
 res = morpher.parse('asf')
 

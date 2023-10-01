@@ -5,7 +5,7 @@ from urllib.parse import quote
 
 from pydantic import BaseSettings
 
-from myresearch.consts import Modes
+from charity.consts import Modes
 
 BASE_DIRPATH: str = str(pathlib.Path(__file__).parent.parent)
 ENV_FILEPATH: str = os.path.join(BASE_DIRPATH, '.env')
