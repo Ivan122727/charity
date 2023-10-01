@@ -70,3 +70,24 @@ def normalize_response(data: Any) -> Any:
         new_data = data
 
     return new_data
+
+from math import sqrt
+
+k_path = 100
+
+class Vector2:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __sub__(self, other):
+        return Vector2(self.x - other.x, self.y - other.y)
+
+    def length(self):
+        return sqrt(self.x**2 + self.y**2)
+
+def get_price(start_latitude, start_longitude, finish_latitude, finish_longitude):
+    start = Vector2(start_latitude, start_longitude)
+    end = Vector2(finish_latitude, finish_longitude)
+    delta = end - start
+    return int(delta.length() * k_path)

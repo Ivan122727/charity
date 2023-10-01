@@ -13,10 +13,10 @@ class UserRoles(SetForClass):
     employee = "employee"
     dev = "dev"
 
-class FundCategories(SetForClass):
-    family = "Семья"
-    health = "Здоровье"
-    animals = "Животные"
+class ActionType(SetForClass):
+    run = "run"
+    bike = "bycicle"
+    walk = "walk"
 
 RolesType = Union[set[str], list[str], str]
 
