@@ -36,7 +36,7 @@ dp = Dispatcher(bot, storage=storage)
 @dp.message_handler(commands=['start'])
 async def start_command(message: types.Message):
     await bot.send_message(chat_id=message.chat.id,
-                           text='Бот запущен',
+                           text='Здравствуйте, приветсвуем вас в нашем боте!',
                            reply_markup=kb1)
     await message.delete()
 
@@ -57,7 +57,7 @@ async def description_command(message: types.Message):
 @dp.message_handler(commands=['event'])
 async def event_command(message: types.Message):
     await bot.send_message(chat_id=message.chat.id,
-                           text='Выберете клуб для отправки оповещения',
+                           text='Выберите клуб для отправки оповещения',
                            reply_markup=ikbClubs2)
     await message.delete()
 
@@ -118,13 +118,6 @@ async def vote_photo(callback: types.CallbackQuery, state: FSMContext):
     elif callbackData[0] == 'C':
         clubIndex = int(callbackData[1]) - 1
         await callback.message.delete()
-
-        #await MyStatesGroup.sign_up.set()
-
-        #async with state.proxy() as data:
-        #    data["clubIndex"] = clubIndex       
-        #await callback.answer()
-
         if not (callback.message.from_user.id in clubMembers[clubIndex]):
             clubMembers[clubIndex].add(callback.message.chat.id)
             await bot.send_message(chat_id=callback.message.chat.id, 
