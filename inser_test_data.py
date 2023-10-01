@@ -46,7 +46,7 @@ async def insert_test_data():
     
     await db.user_collection.insert_document(ivan)
     await db.user_collection.insert_document(vadim)
-    await db.user_collection.insert_document(ilya)
+    # await db.user_collection.insert_document(ilya)
     company = ["Codenrock", "Aviacode"]
     division = ["IT", "Lawyer"]
 
