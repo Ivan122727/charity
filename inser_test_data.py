@@ -53,7 +53,7 @@ async def insert_test_data():
     for user_number in range(40):
         user = {
         UserFields.fullname: "Иванов Иван Иванович",
-        UserFields.roles: [UserRoles.dev],
+        UserFields.roles: [UserRoles.user],
         UserFields.mail: f"{user_number}@gmail.com",
         UserFields.company: company[random.randint(0, 1)],
         UserFields.division: division[random.randint(0, 1)],
